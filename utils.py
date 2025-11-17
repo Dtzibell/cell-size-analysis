@@ -3,11 +3,18 @@ import sys
 import pathlib
 import matplotlib.pyplot as plt
 from CellGraph import CellGraph
+import polars as pl
+
 
 def save_fig(cg: CellGraph, saving_dir: pathlib.Path):
     cg.fig.tight_layout()
     cg.fig.savefig(saving_dir / f"Cell_{cg.id}.png")
     plt.close()
+
+
+def save_csv(cg: CellGraph, saving_dir: pathlib.Path):
+    cg.cycle_data.write_csv(saving_dir / f"Cell_{cg.id}.csv")
+
 
 def select_files():
     default_dir = pathlib.Path().cwd()
@@ -41,12 +48,21 @@ def select_files():
     #     file_path = f"{str(path_to_file)}"
     return selected_files
 
+
 def setup_dir(saving_dir: pathlib.Path, file_path: str):
-    saving_dir = saving_dir / pathlib.Path(file_path).stem / "Figures"
-    saving_dir.mkdir(parents=True, exist_ok=True)
-    return saving_dir
+    figure_dir = saving_dir / pathlib.Path(file_path).stem / "Figures"
+    figure_dir.mkdir(parents=True, exist_ok=True)
+    csv_dir = saving_dir / pathlib.Path(file_path).stem / "Cycles"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+    return figure_dir, csv_dir
+
 
 def gather_input():
-    IMAGING_RATE = float(input("Imaging rate: ").strip())
-    EXPERIMENT_LENGTH = float(input("Experiment length: ").strip())
-    return IMAGING_RATE, EXPERIMENT_LENGTH
+    # IMAGING_RATE = float(input("Imaging rate: ").strip())
+    # EXPERIMENT_LENGTH = float(input("Experiment length: ").strip())
+    # MEDIUM_SWITCH = int(input("Medium switch at frame: ").strip())
+
+    IMAGING_RATE = 3
+    EXPERIMENT_LENGTH = 139
+    MEDIUM_SWITCH = 20
+    return IMAGING_RATE, EXPERIMENT_LENGTH, MEDIUM_SWITCH
