@@ -5,6 +5,22 @@ import matplotlib.pyplot as plt
 from CellGraph import CellGraph
 import polars as pl
 
+def save_final_CSV(concat_dir, cycles_dir):
+
+    # Files with the min-max indeces in the columns
+    all_files = pathlib.Path(cycles_dir).glob('*.csv')
+    #Concatenate all csv with index values for Whi5 min and max
+    csvs = []
+    for f in all_files:
+        try:
+            csvs.append(pl.read_csv(f))
+        except pl.exceptions.NoDataError:
+            pass
+    df_index = pl.concat(csvs)
+
+    df_sorted = df_index.sort(['ID','cycles'])
+    df_sorted.write_csv(concat_dir / 'All.csv', separator = ",") # index=False gives same results as line 14 (reset index)
+
 
 def save_fig(cg: CellGraph, saving_dir: pathlib.Path):
     cg.fig.tight_layout()

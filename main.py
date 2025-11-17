@@ -18,6 +18,7 @@ if __name__ == "__main__":
     for file in files:
         # set up saving directories and create a cell id array to iterate over
         figure_dir, cycles_dir = utils.setup_dir(results_directory, file)
+        concat_dir = figure_dir.parent
         full_df = pl.read_csv(file, infer_schema_length=50000)
         cell_IDs = (
             full_df.unique(subset=["Cell_ID"]).select(c("Cell_ID")).to_numpy().flatten()
@@ -31,3 +32,4 @@ if __name__ == "__main__":
             cellgraph.graph_cycles()
             utils.save_csv(cellgraph, cycles_dir)
             utils.save_fig(cellgraph, figure_dir)
+        utils.save_final_CSV(concat_dir, cycles_dir)
