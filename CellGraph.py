@@ -5,6 +5,7 @@ import polars as pl
 
 
 class CellGraph:
+
     def __init__(self, id, cell_df, IMAGING_RATE, EXPERIMENT_LENGTH, MEDIUM_SWITCH):
         self.id = id
         self.cell_df = cell_df
@@ -101,6 +102,17 @@ class CellGraph:
     def get_average_cycle_length(self):
         return np.average(self.cycle_lengths)
 
+    def get_size_at_(self, time_point):
+        return self.y[time_point]
+
+    def get_lineage(self):
+        return self.cell_df["relationship"].to_numpy()[0]
+
+    def get_first_G1_frame(self):
+        for i in self.cycles:
+            if i > 0:
+                return i 
+        return -1
 
 if __name__ == "__main__":
     cell_df = pl.DataFrame(
@@ -109,4 +121,3 @@ if __name__ == "__main__":
             "cell_cycle_stage": ["S", "G1", "S", "S", "G1", "G1"],
         }
     )
-    cg = CellGraph(0, cell_df, 0, 0, 20)
