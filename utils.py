@@ -5,32 +5,37 @@ import matplotlib.pyplot as plt
 from CellGraph import CellGraph
 import polars as pl
 
-def save_final_CSV(concat_dir, cycles_dir):
 
+def save_final_CSV(cycles_dir: pathlib.Path):
     # Files with the min-max indeces in the columns
-    all_files = pathlib.Path(cycles_dir).glob('*.csv')
-    #Concatenate all csv with index values for Whi5 min and max
+    all_files = pathlib.Path(cycles_dir).glob("*.csv")
+    # Concatenate all csv with index values for Whi5 min and max
     csvs = []
     for f in all_files:
         try:
-            csvs.append(pl.read_csv(f))
+            df = pl.read_csv(
+                f,
+                schema={
+                    "ID": pl.Int16,
+                    "Cycles at (min)": pl.Int16,
+                    "Cycle lengths (min)": pl.Float32,
+                    "Average cycle length": pl.Float32,
+                    "Cell size at first g1": pl.Float32,
+                    "Sizes at bud": pl.Float32,
+                    "Lineage": pl.String,
+                },
+            )
+            csvs.append(df)
         except pl.exceptions.NoDataError:
             pass
+    # TODO: applies to cell 24 of the WT dataset - the dataframe is correct, however
+    # when concatenated inserts values that should not exist there. 
     df_index = pl.concat(csvs)
 
-    df_sorted = df_index.sort(['ID','cycles'])
-    df_sorted.write_csv(concat_dir / 'All.csv', separator = ",") # index=False gives same results as line 14 (reset index)
-
-
-def save_fig(cg: CellGraph, saving_dir: pathlib.Path):
-    cg.fig.tight_layout()
-    cg.fig.savefig(saving_dir / f"Cell_{cg.id}.png")
-    plt.close()
-
-
-def save_csv(cg: CellGraph, saving_dir: pathlib.Path):
-    cg.cycle_data.write_csv(saving_dir / f"Cell_{cg.id}.csv")
-
+    df_sorted = df_index.sort(["ID", "Cycles at (min)"])
+    df_sorted.write_csv(
+        cycles_dir.parent / "All.csv", separator=","
+    )  # index=False gives same results as line 14 (reset index)
 
 def select_files():
     default_dir = pathlib.Path().cwd()
@@ -45,6 +50,7 @@ def select_files():
         "CSV files (*.csv)",
         options=QFileDialog.Option.DontUseNativeDialog,
     )
+
     # for path in file_dialog[0]:
     #     selected_files.append(pathlib.Path(path)) # creates a list of pathlib.Paths with selected files
     # for visual representation of selection (GUI)
@@ -66,11 +72,9 @@ def select_files():
 
 
 def setup_dir(saving_dir: pathlib.Path, file_path: str):
-    figure_dir = saving_dir / pathlib.Path(file_path).stem / "Figures"
-    figure_dir.mkdir(parents=True, exist_ok=True)
-    csv_dir = saving_dir / pathlib.Path(file_path).stem / "Cycles"
-    csv_dir.mkdir(parents=True, exist_ok=True)
-    return figure_dir, csv_dir
+    file_dir = saving_dir / pathlib.Path(file_path).stem
+    file_dir.mkdir(parents=True, exist_ok=True)
+    return file_dir
 
 
 def gather_input():
@@ -78,7 +82,7 @@ def gather_input():
     # EXPERIMENT_LENGTH = float(input("Experiment length: ").strip())
     # MEDIUM_SWITCH = int(input("Medium switch at frame: ").strip())
 
-    IMAGING_RATE = 3
+    IMAGING_RATE = 3.0
     EXPERIMENT_LENGTH = 139
     MEDIUM_SWITCH = 20
     return IMAGING_RATE, EXPERIMENT_LENGTH, MEDIUM_SWITCH
