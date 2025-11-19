@@ -86,7 +86,7 @@ class CellGraph:
 
         self.text(
             ax=self.ax,
-            x=self.cycle_lengths,
+            x=self.cycle_lengths * self.IMAGING_RATE,
             y=self.ax.get_ylim()[1] - 40,
             txt=self.time_at_(self.cycle_lengths),
         )
@@ -155,10 +155,8 @@ class CellGraph:
     def get_cycles(self):
         # entrances are 1 where G1 goes to S phase
         # caveat: if the experiment starts with S phase, but finished with G1, it will yield a cell cycle start. Wanted behaviour for all cells or rather remove completely?
-        shifted_by_1 = np.append(self.cycle_stages[-1:], self.cycle_stages[:-1])
-        entrances = np.where(self.cycle_stages > shifted_by_1, 1, 0)
-        # the 0 is added as a dummy value for the first (incomplete) cycle
-        cycles = np.append(np.array([0]), np.nonzero(entrances))
+        entrances = np.where(self.cycle_stages[:-1] > self.cycle_stages[1:], 1, 0)
+        cycles = np.nonzero(entrances)
         return cycles
 
     def get_cycle_lengths(self):
