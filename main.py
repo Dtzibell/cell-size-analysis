@@ -9,7 +9,7 @@ import utils
 if __name__ == "__main__":
     mpl.rcParams["figure.figsize"] = (10, 5)
     mpl.rcParams["figure.dpi"] = 300
-    results_directory = pathlib.Path(r"/home/tauras/Desktop/Results")
+    results_directory = pathlib.Path(r"/home/tauras/Desktop/Results") # <--- change this (for Windows ex.: C://xxxx/xxxx)
 
     IMAGING_RATE, EXPERIMENT_LENGTH, MEDIUM_SWITCH = utils.gather_input()
 
