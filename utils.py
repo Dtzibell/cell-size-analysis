@@ -1,8 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QFileDialog
 import sys
 import pathlib
-import matplotlib.pyplot as plt
-from CellGraph import CellGraph
 import polars as pl
 
 

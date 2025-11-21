@@ -1,11 +1,8 @@
 from collections import defaultdict
-from typing import Iterable
 from matplotlib import axes
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.typing import ArrayLike
 import polars as pl
-import pathlib
 
 
 class CellGraph:
@@ -23,8 +20,7 @@ class CellGraph:
     def setup_dir(self):
         self.figure_dir = self.FILE_DIR / "Figures"
         self.cycles_dir = self.FILE_DIR / "Cycles"
-        self.bud_dir = self.FILE_DIR / "Bud sizes"
-        for i in [self.figure_dir, self.cycles_dir, self.bud_dir]:
+        for i in [self.figure_dir, self.cycles_dir]:
             i.mkdir(parents=True, exist_ok=True)
 
     def initialize_graph(self):
@@ -34,7 +30,7 @@ class CellGraph:
         self.fig.supylabel("cell volume [fl]")
         self.fig.supxlabel("time [min]")
         self.fig.suptitle("Cell volume from 2D cell mask")
-        self.ax.set_xlim(0, self.EXPERIMENT_DURATION + self.IMAGING_RATE)
+        self.ax.set_xlim(0, self.EXPERIMENT_DURATION)
         self.ax.set_ylim(0, 700)
         plt.xticks(
             np.arange(0, self.EXPERIMENT_DURATION, TICK_INTERVAL),
@@ -86,9 +82,9 @@ class CellGraph:
 
         self.text(
             ax=self.ax,
-            x=self.cycle_lengths * self.IMAGING_RATE,
+            x=self.time_at_(self.cycles + 1.5),
             y=self.ax.get_ylim()[1] - 40,
-            txt=self.time_at_(self.cycle_lengths),
+            txt=self.time_at_(np.append(np.array([0]), self.cycle_lengths)),
         )
 
     def text(self, ax: axes.Axes, x: np.ndarray, y: float, txt):
@@ -105,8 +101,6 @@ class CellGraph:
         # should be refactored with time_at_ functions
         cycler = defaultdict(list)
         self.lineage = self.get_lineage()
-        if self.id == 24:
-            print(self.lineage)
         self.size_at_first_g1 = (
             self.size_at_(self.get_first_G1_frame())
             if self.lineage == "bud"
@@ -116,8 +110,6 @@ class CellGraph:
         for idx in range(len(self.cycles)):
             cycler["ID"].append(self.id)
             cycler["Cycles at (min)"].append(self.cycles[idx] * self.IMAGING_RATE)
-            if self.id == 24:
-                print(self.cycle_lengths[idx-1])
             cycler["Cycle lengths (min)"].append(
                 self.cycle_lengths[idx - 1] * self.IMAGING_RATE
                 if idx != 0
@@ -142,8 +134,6 @@ class CellGraph:
                 "Sizes at bud": pl.Float32,
                 "Lineage": pl.String,
             })
-        if self.id == 24:
-            print(cycle_data)
         return cycle_data
 
     def get_cycle_stages(self):
@@ -156,7 +146,8 @@ class CellGraph:
         # entrances are 1 where G1 goes to S phase
         # caveat: if the experiment starts with S phase, but finished with G1, it will yield a cell cycle start. Wanted behaviour for all cells or rather remove completely?
         entrances = np.where(self.cycle_stages[:-1] > self.cycle_stages[1:], 1, 0)
-        cycles = np.nonzero(entrances)
+        # nonzero returns a tuple (multidimensional arrays)
+        cycles = np.nonzero(entrances)[0]
         return cycles
 
     def get_cycle_lengths(self):
@@ -175,8 +166,9 @@ class CellGraph:
         return -1
 
     def save_csv(self):
-        self.cycle_data = self.save_data()
-        self.cycle_data.write_csv(self.cycles_dir / f"Cell_{self.id}.csv")
+        if self.cycles.size > 0:
+            self.cycle_data = self.save_data()
+            self.cycle_data.write_csv(self.cycles_dir / f"Cell_{self.id}.csv")
 
     def save_fig(self):
         self.fig.tight_layout()

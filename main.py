@@ -23,7 +23,7 @@ if __name__ == "__main__":
         cell_IDs = (
             full_df.unique(subset=["Cell_ID"])
             .select(c("Cell_ID"))
-            .sort(c("Cell_ID"))
+            # .sort(c("Cell_ID")) # uncomment if want sorted looping
             .to_numpy()
             .flatten()
         )
