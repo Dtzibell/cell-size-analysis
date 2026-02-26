@@ -17,9 +17,9 @@ def save_final_CSV(cycles_dir: pathlib.Path):
                     "ID": pl.Int16,
                     "Cycles at (min)": pl.Int16,
                     "Cycle lengths (min)": pl.Float32,
-                    "Average cycle length": pl.Float32,
-                    "Cell size at first g1": pl.Float32,
-                    "Sizes at bud": pl.Float32,
+                    "Average cycle length (min)": pl.Float32,
+                    "Cell size at first g1 (min)": pl.Float32,
+                    "Sizes at bud (fl)": pl.Float32,
                     "Lineage": pl.String,
                 },
             )
@@ -34,6 +34,7 @@ def save_final_CSV(cycles_dir: pathlib.Path):
     df_sorted.write_csv(
         cycles_dir.parent / "All.csv", separator=","
     )  # index=False gives same results as line 14 (reset index)
+    return df_sorted
 
 def select_files():
     default_dir = pathlib.Path().cwd()
@@ -41,7 +42,7 @@ def select_files():
     # output: [0] list of paths as strings, [1] type of files as string (ex. "*.csv")
     selected_files, _ = QFileDialog.getOpenFileNames(
         None,
-        "Select your data's .csv",
+        "Select your data (.csv's)",
         str(
             default_dir
         ),  # replace this line with string of your desired default directory
@@ -76,7 +77,7 @@ def setup_dir(saving_dir: pathlib.Path, file_path: str):
 
 
 def gather_input():
-    # IMAGING_RATE = float(input("Imaging rate: ").strip())
+    # IMAGING_RATE = float(input("Imaging frequency (min): ").strip())
     # EXPERIMENT_LENGTH = float(input("Experiment length: ").strip())
     # MEDIUM_SWITCH = int(input("Medium switch at frame: ").strip())
 

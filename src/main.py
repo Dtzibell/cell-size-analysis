@@ -1,5 +1,6 @@
 from collections import defaultdict
 import pathlib
+from numpy import concat
 import polars as pl
 from polars import col as c
 import matplotlib as mpl
@@ -15,6 +16,7 @@ if __name__ == "__main__":
 
     # necessary to be able to start any qtwidget.
     files = utils.select_files()
+    dfs = []
 
     for file in files:
         # set up saving directories and create a cell id array to iterate over
@@ -37,13 +39,19 @@ if __name__ == "__main__":
             cg = CellGraph(
                 id, cell_df, FILE_DIR, IMAGING_RATE, EXPERIMENT_LENGTH, MEDIUM_SWITCH
             )
-            cg.initialize_graph()
+            # cg.initialize_graph()
             cg.graph_cell_size()
-            cg.graph_medium_switch()
+            # cg.graph_medium_switch()
             cg.graph_cycles()
             lineage = cg.get_lineage()
             first_g1_frame = cg.get_first_G1_frame()
             cg.save_csv()
-            cg.save_fig()
+            # cg.save_fig()
         cycles_dir = cg.cycles_dir
-        utils.save_final_CSV(cycles_dir)
+        dfs.append(utils.save_final_CSV(cycles_dir))
+
+    concat_df = pl.DataFrame()
+    for df in dfs:
+        concat_df = pl.concat([concat_df, df])
+
+    concat_df.write_csv("~/Desktop/Results/PM021.csv")

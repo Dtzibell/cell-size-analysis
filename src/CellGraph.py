@@ -40,7 +40,7 @@ class CellGraph:
     def graph_cell_size(self):
         self.x = self.get_x()
         self.y = self.get_y()
-        self.ax.plot(self.x, self.y, "k")
+        # self.ax.plot(self.x, self.y, "k")
 
     def get_x(self):
         x = self.cell_df["time_minutes"].to_numpy()
@@ -73,19 +73,19 @@ class CellGraph:
         )
         self.average_cycle_length = self.get_average_cycle_length()
 
-        self.ax.vlines(
-            x=self.time_at_(self.cycles),
-            ymin=0,
-            ymax=self.ax.get_ylim()[1],
-            color="b",
-        )
+        # self.ax.vlines(
+        #     x=self.time_at_(self.cycles),
+        #     ymin=0,
+        #     ymax=self.ax.get_ylim()[1],
+        #     color="b",
+        # )
 
-        self.text(
-            ax=self.ax,
-            x=self.time_at_(self.cycles + 1.5),
-            y=self.ax.get_ylim()[1] - 40,
-            txt=self.time_at_(np.append(np.array([0]), self.cycle_lengths)),
-        )
+        # self.text(
+        #     ax=self.ax,
+        #     x=self.time_at_(self.cycles + 1.5),
+        #     y=self.ax.get_ylim()[1] - 40,
+        #     txt=self.time_at_(np.append(np.array([0]), self.cycle_lengths)),
+        # )
 
     def text(self, ax: axes.Axes, x: np.ndarray, y: float, txt):
         # wrapper for array-like x and s inputs
@@ -115,11 +115,11 @@ class CellGraph:
                 if idx != 0
                 else np.float32(-1)
             )
-            cycler["Average cycle length"].append(
+            cycler["Average cycle length (min)"].append(
                 self.average_cycle_length * self.IMAGING_RATE
             )
-            cycler["Cell size at first g1"].append(self.size_at_first_g1)
-            cycler["Sizes at bud"].append(
+            cycler["Cell size at first g1 (min)"].append(self.size_at_first_g1)
+            cycler["Sizes at bud (fl)"].append(
                 self.sizes_at_buds[idx-1] if idx != 0 else np.float32(-1)
             )
             cycler["Lineage"].append(self.lineage)
@@ -129,9 +129,9 @@ class CellGraph:
                 "ID": pl.Int16,
                 "Cycles at (min)": pl.Int16,
                 "Cycle lengths (min)": pl.Float32,
-                "Average cycle length": pl.Float32,
-                "Cell size at first g1": pl.Float32,
-                "Sizes at bud": pl.Float32,
+                "Average cycle length (min)": pl.Float32,
+                "Cell size at first g1 (min)": pl.Float32,
+                "Sizes at bud (fl)": pl.Float32,
                 "Lineage": pl.String,
             })
         return cycle_data
