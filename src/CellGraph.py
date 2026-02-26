@@ -148,6 +148,8 @@ class CellGraph:
         entrances = np.where(self.cycle_stages[:-1] > self.cycle_stages[1:], 1, 0)
         # nonzero returns a tuple (multidimensional arrays)
         cycles = np.nonzero(entrances)[0]
+        print(cycles)
+        print(entrances)
         return cycles
 
     def get_cycle_lengths(self):

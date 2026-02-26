@@ -1,13 +1,16 @@
 from collections import defaultdict
 import pathlib
-from numpy import concat
 import polars as pl
 from polars import col as c
 import matplotlib as mpl
-from CellGraph import CellGraph
-import utils
+from src.CellGraph import CellGraph
+from src import utils
+import configparser
 
 if __name__ == "__main__":
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    results_directory = pathlib.Path(config["PATHS"]["ResultsPath"])
     mpl.rcParams["figure.figsize"] = (10, 5)
     mpl.rcParams["figure.dpi"] = 300
     results_directory = pathlib.Path(r"/home/tauras/Desktop/Results") # <--- change this (for Windows ex.: C://xxxx/xxxx)
@@ -53,5 +56,6 @@ if __name__ == "__main__":
     concat_df = pl.DataFrame()
     for df in dfs:
         concat_df = pl.concat([concat_df, df])
-
-    concat_df.write_csv("~/Desktop/Results/PM021.csv")
+    
+    concatPath = pathlib.Path(input("Enter name of concatenated file: ") + ".csv")
+    concat_df.write_csv(pathlib.Path("~/Desktop/Results") / concatPath)
