@@ -147,9 +147,7 @@ class CellGraph:
         # caveat: if the experiment starts with S phase, but finished with G1, it will yield a cell cycle start. Wanted behaviour for all cells or rather remove completely?
         entrances = np.where(self.cycle_stages[:-1] > self.cycle_stages[1:], 1, 0)
         # nonzero returns a tuple (multidimensional arrays)
-        cycles = np.nonzero(entrances)[0]
-        print(cycles)
-        print(entrances)
+        cycles = np.nonzero(entrances)[0][:-1]
         return cycles
 
     def get_cycle_lengths(self):
