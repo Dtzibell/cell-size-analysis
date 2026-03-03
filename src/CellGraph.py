@@ -5,14 +5,12 @@ from polars import col as c
 
 class CellGraph:
     def __init__(
-        self, id, cell_df, FILE_DIR, IMAGING_RATE, EXPERIMENT_LENGTH, MEDIUM_SWITCH
+        self, id, cell_df, FILE_DIR, MEDIUM_SWITCH
     ):
         self.id = id
         self.cell_df = cell_df
         self.cell_df.write_csv(f"~/Desktop/Results/single_cells/Cell_{self.id}.csv")
         self.FILE_DIR = FILE_DIR
-        self.IMAGING_RATE = IMAGING_RATE
-        self.EXPERIMENT_LENGTH = EXPERIMENT_LENGTH
         self.MEDIUM_SWITCH = MEDIUM_SWITCH
         self.setup_dir()
 
@@ -32,7 +30,7 @@ class CellGraph:
         y = self.cell_df.get_column("cell_vol_fl")
         return y
 
-    def size_at_(self, frames: int | pl.Series) -> float | np.ndarray:
+    def size_at_(self, frames: int | pl.Series) -> float | pl.Series:
         match frames:
             case pl.Series():
                 return (self.cell_df.lazy()
@@ -47,8 +45,20 @@ class CellGraph:
                         .filter(c("frame_i") == frames)
                         )
 
-    def time_at_(self, frames: int | np.ndarray) -> float | np.ndarray:
-        return frames * self.IMAGING_RATE
+    def time_at_(self, frames: int | pl.Series) -> float | pl.Series:
+        match frames:
+            case pl.Series():
+                return (self.cell_df.lazy()
+                        .with_columns(is_in=c("frame_i").is_in(frames))
+                        .select(["is_in", "time_minutes"])
+                        .filter(c("is_in") == True)
+                        .collect()
+                        .get_column("time_minutes")
+                        )
+            case int(): 
+                return (self.cell_df
+                        .filter(c("frame_i") == frames)
+                        )
 
     def graph_cycles(self):
         self.cycles = self.get_cycles()

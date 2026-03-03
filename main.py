@@ -62,7 +62,7 @@ if __name__ == "__main__":
             if ind % 100 == 0:
                 print(f"Proceeding with cell {ind}/{total_cells}")
             cg = CellGraph(
-                id, partitioned_df[(id,)], FILE_DIR, imaging_rate, experiment_length, MEDIUM_SWITCH
+                id, partitioned_df[(id,)], FILE_DIR, MEDIUM_SWITCH
             )
             cg.graph_cell_size()
             cg.graph_cycles()
