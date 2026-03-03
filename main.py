@@ -10,9 +10,8 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read("config.ini")
     results_directory = Path(config["PATHS"]["ResultsDirectory"])
-    # results_directory = pathlib.Path(r"/home/tauras/Desktop/Results") # <--- change this (for Windows ex.: C://xxxx/xxxx)
-    # files = utils.select_files()
-    files = ["20250819_PM021_PM024_Stat_to_Glc_s02_acdc_output_cells_WT.csv"]
+    files = utils.select_files()
+    # files = ["20250819_PM021_PM024_Stat_to_Glc_s02_acdc_output_cells_WT.csv"]
 
     dfs = []
     for file in files:
@@ -38,13 +37,12 @@ if __name__ == "__main__":
         minutes = full_df.unique(c("time_minutes")).sort(c("time_minutes"))
         imaging_rate = minutes[1, "time_minutes"] - minutes[0, "time_minutes"]
 
-        # MEDIUM_SWITCH = (
-        #     float(input(
-        #         f"Enter the time point of of the medium switch for file {FILE_DIR.name} (min): "
-        #         ))
-        #     / imaging_rate
-        # )
-        MEDIUM_SWITCH = 20
+        MEDIUM_SWITCH = (
+            float(input(
+                f"Enter the time point of of the medium switch for file {FILE_DIR.name} (min): "
+                ))
+            / imaging_rate
+        )
 
         cell_IDs = (
             full_df
