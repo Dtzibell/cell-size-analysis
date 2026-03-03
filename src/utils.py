@@ -15,7 +15,7 @@ def save_final_CSV(cycles_dir: pathlib.Path):
                 f,
                 schema={
                     "ID": pl.Int16,
-                    "Cycles at (min)": pl.Int16,
+                    "Cycles at (min)": pl.Float64,
                     "Cycle lengths (min)": pl.Float32,
                     "Average cycle length (min)": pl.Float32,
                     "Cell size at first g1 (min)": pl.Float32,
@@ -27,7 +27,7 @@ def save_final_CSV(cycles_dir: pathlib.Path):
         except pl.exceptions.NoDataError:
             pass
     # TODO: applies to cell 24 of the WT dataset - the dataframe is correct, however
-    # when concatenated inserts values that should not exist there. 
+    # when concatenated inserts values that should not exist there.
     df_index = pl.concat(csvs)
 
     df_sorted = df_index.sort(["ID", "Cycles at (min)"])
@@ -35,6 +35,7 @@ def save_final_CSV(cycles_dir: pathlib.Path):
         cycles_dir.parent / "All.csv", separator=","
     )  # index=False gives same results as line 14 (reset index)
     return df_sorted
+
 
 def select_files():
     default_dir = pathlib.Path().cwd()
