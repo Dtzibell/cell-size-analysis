@@ -64,9 +64,10 @@ if __name__ == "__main__":
             cg = CellGraph(
                 id, partitioned_df[(id,)], FILE_DIR, MEDIUM_SWITCH
             )
-            cg.graph_cell_size()
-            cg.graph_cycles()
-            cell_cycler = cg.save_csv()
+            if cg.has_g1():
+                cg.graph_cell_size()
+                cg.graph_cycles()
+                cell_cycler = cg.save_csv()
         dfs.append(utils.save_final_CSV(cg.cycles_dir))
 
     concat_df = pl.DataFrame()

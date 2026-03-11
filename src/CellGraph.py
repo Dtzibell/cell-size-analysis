@@ -1,5 +1,4 @@
 from collections import defaultdict
-import numpy as np
 import polars as pl
 from polars import col as c
 
@@ -9,14 +8,20 @@ class CellGraph:
     ):
         self.id = id
         self.cell_df = cell_df
-        self.cell_df.write_csv(f"~/Desktop/Results/single_cells/Cell_{self.id}.csv")
         self.FILE_DIR = FILE_DIR
         self.MEDIUM_SWITCH = MEDIUM_SWITCH
+
         self.setup_dir()
+        self.cell_df.write_csv(self.df_dir/ f"Cell_{self.id}.csv")
+
+    def has_g1(self) -> bool:
+        return self.cell_df.filter(c("cell_cycle_stage")=="G1").height > 0
 
     def setup_dir(self):
-        self.cycles_dir = self.FILE_DIR / "Cycles"
-        self.cycles_dir.mkdir(parents=True, exist_ok=True)
+        self.cycles_dir = self.FILE_DIR / "Cell_cycles"
+        self.df_dir = self.FILE_DIR / "Cell_frames"
+        for d in [self.cycles_dir, self.df_dir]:
+            d.mkdir(parents=True, exist_ok=True)
 
     def graph_cell_size(self):
         self.x = self.get_x()
@@ -118,6 +123,7 @@ class CellGraph:
         return self.cell_df.get_column("relationship")[0]
 
     def get_size_at_first_G1(self):
+        # may throw a value error if the cell has not finished budding.
         if self.get_lineage() == "bud":
             return (self.cell_df.lazy()
                     .unique("cell_cycle_stage")
@@ -133,10 +139,3 @@ class CellGraph:
             self.cycle_data = self.save_data()
             self.cycle_data.write_csv(self.cycles_dir / f"Cell_{self.id}.csv")
 
-if __name__ == "__main__":
-    cell_df = pl.DataFrame(
-        {
-            "wow": ["wow" for _ in range(6)],
-            "cell_cycle_stage": ["S", "G1", "S", "S", "G1", "G1"],
-        }
-    )
