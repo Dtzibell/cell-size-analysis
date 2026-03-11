@@ -74,5 +74,11 @@ if __name__ == "__main__":
     for df in dfs:
         concat_df = pl.concat([concat_df, df])
 
-    concatPath = Path(input("Enter name of concatenated file: ") + ".csv")
-    concat_df.write_csv(Path(config["PATHS"]["OutputDirectory"]) / concatPath)
+    concatPath = Path(input("Enter name of concatenated file: ") + ".xlsx")
+    concat_df.write_excel(Path(config["PATHS"]["OutputDirectory"]) / concatPath,
+        freeze_panes=(1, 0),
+        autofit=True,
+        autofilter=True,
+        float_precision=5,
+        header_format={"bold": True},
+                          )
