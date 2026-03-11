@@ -4,12 +4,11 @@ from polars import col as c
 
 class CellGraph:
     def __init__(
-        self, id, cell_df, FILE_DIR, MEDIUM_SWITCH
+        self, id, cell_df, FILE_DIR
     ):
         self.id = id
         self.cell_df = cell_df
         self.FILE_DIR = FILE_DIR
-        self.MEDIUM_SWITCH = MEDIUM_SWITCH
 
         self.setup_dir()
         self.cell_df.write_csv(self.df_dir/ f"Cell_{self.id}.csv")

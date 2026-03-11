@@ -37,13 +37,6 @@ if __name__ == "__main__":
         minutes = full_df.unique(c("time_minutes")).sort(c("time_minutes"))
         imaging_rate = minutes[1, "time_minutes"] - minutes[0, "time_minutes"]
 
-        MEDIUM_SWITCH = (
-            float(input(
-                f"Enter the time point of of the medium switch for file {FILE_DIR.name} (min): "
-                ))
-            / imaging_rate
-        )
-
         cell_IDs = (
             full_df
             .unique(c("Cell_ID"))
@@ -62,7 +55,7 @@ if __name__ == "__main__":
             if ind % 100 == 0:
                 print(f"Proceeding with cell {ind}/{total_cells}")
             cg = CellGraph(
-                id, partitioned_df[(id,)], FILE_DIR, MEDIUM_SWITCH
+                id, partitioned_df[(id,)], FILE_DIR
             )
             if cg.has_g1():
                 cg.graph_cell_size()
